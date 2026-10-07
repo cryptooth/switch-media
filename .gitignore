@@ -1,0 +1,16 @@
+# Downloaded assets and local state
+media/
+.cache/
+downloaded.json
+index.csv
+*.part
+
+# Local settings (contains your SteamGridDB API key)
+settings.json
+
+# Python
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store

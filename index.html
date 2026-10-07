@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Switch Media</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%23e60012%22/%3E%3Crect x=%229%22 y=%227%22 width=%229%22 height=%2218%22 rx=%223%22 fill=%22white%22/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#f4f4f2; --panel:#ffffff; --ink:#18181b; --muted:#6b6b72; --line:#e3e3e0;
+  --accent:#e60012; --accent-ink:#fff; --ok:#1f9d55; --warn:#c77700; --sel:#fff1f2; --selline:#e60012;
+  --shadow:0 1px 2px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.05);
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#111113; --panel:#1b1b1f; --ink:#ececf0; --muted:#9a9aa3; --line:#2b2b31;
+  --accent:#ff2a3a; --sel:#2a1517; --selline:#ff2a3a; --shadow:0 1px 2px rgba(0,0,0,.4);
+}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif}
+button,input,select{font:inherit;color:inherit}
+header{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.top{display:flex;align-items:center;gap:16px;padding:14px 20px 10px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;letter-spacing:-.01em}
+.logo i{width:22px;height:22px;border-radius:6px;background:var(--accent);display:inline-block;position:relative}
+.logo i::after{content:"";position:absolute;inset:5px 9px 5px 5px;border-radius:3px;background:var(--accent-ink);opacity:.9}
+.stats{color:var(--muted);font-size:13px;margin-left:auto;display:flex;gap:14px}
+.stats b{color:var(--ink);font-weight:600}
+.tools{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:0 20px 12px}
+.search{flex:1 1 220px;position:relative}
+.search input{width:100%;padding:9px 12px 9px 34px;border:1px solid var(--line);border-radius:10px;background:var(--panel);outline:none}
+.search input:focus{border-color:var(--accent)}
+.search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);opacity:.5}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel)}
+.seg button{border:0;background:none;padding:8px 12px;cursor:pointer;color:var(--muted)}
+.seg button.on{background:var(--ink);color:var(--bg)}
+select,.btn{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:8px 12px;cursor:pointer}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.btn.primary:disabled{opacity:.45;cursor:not-allowed}
+.btn.ghost{background:none}
+main{padding:16px 20px 120px}
+.count{color:var(--muted);font-size:13px;margin:0 0 12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:14px}
+.card{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;cursor:pointer;box-shadow:var(--shadow);transition:transform .08s,border-color .08s}
+.card:hover{transform:translateY(-1px)}
+.card.sel{border-color:var(--selline);background:var(--sel);box-shadow:0 0 0 2px var(--selline)}
+.card{isolation:isolate}
+.card .ph{position:absolute;inset:0 0 auto 0;aspect-ratio:1;display:grid;place-items:center;padding:14px;text-align:center;font-weight:700;font-size:13px;color:var(--muted);background:var(--line);z-index:-1}
+.card .img{aspect-ratio:1;display:block;width:100%;object-fit:cover;opacity:0;transition:opacity .2s}
+.card .img.ok{opacity:1}
+.card .img.err{visibility:hidden}
+.card .body{padding:9px 10px 10px}
+.card .name{font-weight:600;font-size:13px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.5em}
+.card .meta{color:var(--muted);font-size:11.5px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.check{position:absolute;top:8px;left:8px;width:24px;height:24px;border-radius:7px;background:rgba(255,255,255,.92);border:1.5px solid rgba(0,0,0,.25);display:grid;place-items:center}
+.card.sel .check{background:var(--accent);border-color:var(--accent)}
+.card.sel .check::after{content:"";width:6px;height:11px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.info{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;border:0;background:rgba(0,0,0,.55);color:#fff;font-weight:700;font-size:13px;cursor:pointer}
+.badges{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
+.badge{font-size:10.5px;padding:2px 6px;border-radius:6px;background:color-mix(in srgb,var(--ok) 15%,transparent);color:var(--ok);font-weight:600}
+.badge.miss{background:color-mix(in srgb,var(--warn) 15%,transparent);color:var(--warn)}
+.more{display:block;margin:20px auto 0}
+.more[hidden]{display:none}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--panel);border-top:1px solid var(--line);padding:12px 20px;display:flex;align-items:center;gap:12px;box-shadow:0 -4px 20px rgba(0,0,0,.06)}
+.bar .sel-txt{font-weight:600}
+.bar .spacer{flex:1}
+.prog{display:none;flex:2;align-items:center;gap:10px;min-width:0}
+.prog.on{display:flex}
+.prog .track{flex:1;height:8px;background:var(--line);border-radius:6px;overflow:hidden}
+.prog .fill{height:100%;width:0;background:var(--accent);transition:width .3s}
+.prog .txt{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:40vw}
+dialog{border:1px solid var(--line);border-radius:16px;background:var(--panel);color:var(--ink);padding:0;max-width:min(720px,94vw);width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+.dlg-h{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line);font-weight:700}
+.dlg-b{padding:16px 18px}
+.dlg-b label{display:block;font-size:12.5px;color:var(--muted);margin:12px 0 5px}
+.dlg-b input,.dlg-b select{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:var(--bg)}
+.dlg-b .hint{font-size:12px;color:var(--muted);margin-top:4px}
+.dlg-f{display:flex;justify-content:flex-end;gap:8px;padding:12px 18px;border-top:1px solid var(--line)}
+.regs{display:flex;flex-wrap:wrap;gap:6px}
+.regs label{display:inline-flex;align-items:center;gap:6px;margin:0;padding:6px 10px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);font-size:13px;cursor:pointer}
+.regs input{width:auto;margin:0}
+.rtag{display:inline-block;font-size:10px;font-weight:700;padding:1px 5px;border-radius:5px;background:var(--ink);color:var(--bg);margin-right:5px;vertical-align:1px}
+.x{border:0;background:none;font-size:20px;cursor:pointer;color:var(--muted)}
+.detail-banner{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;background:var(--line)}
+.detail-row{display:flex;gap:14px;padding:16px 18px;align-items:flex-start}
+.detail-row img{width:96px;height:96px;border-radius:12px;object-fit:cover}
+.detail-row h3{margin:0 0 4px;font-size:17px}
+.kv{color:var(--muted);font-size:12.5px}
+.files{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+audio{width:100%;margin-top:10px}
+#log{font:12px/1.5 ui-monospace,Menlo,monospace;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;max-height:50vh;overflow:auto;white-space:pre-wrap;margin:0}
+.loading{padding:80px 0;text-align:center;color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 14px;border-radius:10px;font-size:13px;z-index:50;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+@media (max-width:640px){.top,.tools,main,.bar{padding-left:16px;padding-right:16px}.stats{display:none}.grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <div class="logo"><i></i>Switch Media</div>
+    <div class="stats"><span>Catalog <b id="st-cat">–</b></span><span>Downloaded <b id="st-dl">–</b></span></div>
+    <button class="btn ghost" id="btn-log" title="Download log">Log</button>
+    <button class="btn ghost" id="btn-settings">Settings</button>
+  </div>
+  <div class="tools">
+    <div class="search">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" placeholder="Search by game name, publisher or Title ID…" autocomplete="off" autofocus>
+    </div>
+    <div class="seg" id="filter">
+      <button data-f="all" class="on">All</button>
+      <button data-f="new">Not downloaded</button>
+      <button data-f="done">Downloaded</button>
+      <button data-f="sel">Selected</button>
+    </div>
+    <select id="region" title="Region"><option value="">All regions</option></select>
+    <select id="sort">
+      <option value="name">By name</option>
+      <option value="new">Newest</option>
+      <option value="old">Oldest</option>
+    </select>
+    <button class="btn" id="btn-selall">Select visible</button>
+    <button class="btn ghost" id="btn-clear">Clear selection</button>
+  </div>
+</header>
+
+<main>
+  <p class="count" id="count"></p>
+  <div class="grid" id="grid"><div class="loading">Loading catalog…</div></div>
+  <button class="btn more" id="more" hidden>Show more</button>
+</main>
+
+<div class="bar">
+  <span class="sel-txt" id="sel-txt">Nothing selected</span>
+  <div class="prog" id="prog"><div class="track"><div class="fill" id="fill"></div></div><span class="txt" id="prog-txt"></span></div>
+  <span class="spacer"></span>
+  <button class="btn ghost" id="btn-cancel" hidden>Stop</button>
+  <button class="btn primary" id="btn-dl" disabled>Download</button>
+</div>
+
+<dialog id="dlg-settings">
+  <div class="dlg-h">Settings <button class="x" data-close>×</button></div>
+  <div class="dlg-b">
+    <label>Output folder</label>
+    <input id="s-out">
+    <div class="hint">If you plan to download the whole catalog, pick a folder outside iCloud (e.g. ~/SwitchMedia).</div>
+    <label>Theme music source</label>
+    <select id="s-music">
+      <option value="khinsider">KHInsider</option>
+      <option value="both">KHInsider, fall back to YouTube (requires yt-dlp)</option>
+      <option value="youtube">YouTube only (requires yt-dlp)</option>
+      <option value="none">Don't download music</option>
+    </select>
+    <label>Screenshots per game</label>
+    <select id="s-shots"><option>0</option><option>1</option><option>2</option><option>3</option><option>6</option></select>
+    <label>SteamGridDB API key (optional — for hero and logo images)</label>
+    <input id="s-key" placeholder="steamgriddb.com → Preferences → API">
+    <label>Catalog regions (the first checked region is the primary one: game names and images come from it)</label>
+    <div id="s-regions" class="regs"></div>
+    <div class="hint">Newly added regions are downloaded on first load (~50–90 MB each, may take a minute).</div>
+    <label>Games to download in parallel</label>
+    <select id="s-workers"><option>1</option><option>2</option><option>3</option><option>4</option><option>6</option><option>8</option></select>
+  </div>
+  <div class="dlg-f"><button class="btn ghost" id="btn-rescan">Rescan folder</button><button class="btn primary" id="btn-save">Save</button></div>
+</dialog>
+
+<dialog id="dlg-detail">
+  <div id="detail"></div>
+</dialog>
+
+<dialog id="dlg-log">
+  <div class="dlg-h">Download log <button class="x" data-close>×</button></div>
+  <div class="dlg-b"><pre id="log">Nothing yet.</pre></div>
+</dialog>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const PAGE = 120;
+let regions = [], labels = {}, region = "";
+let catalog = [], downloaded = {}, selected = new Set(), filter = "all", shown = PAGE, view = [], wasRunning = false;
+try { selected = new Set(JSON.parse(localStorage.getItem("sel") || "[]")); } catch (e) {}
+
+const api = async (p, body) => {
+  const r = await fetch(p, body === undefined ? {} : {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error || r.status);
+  return j;
+};
+const toast = msg => { const t = $("#toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("on"), 2200); };
+const norm = s => (s || "").normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/[™®©]/g, "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+const year = d => d ? String(d).slice(0, 4) : "";
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const mediaUrl = (folder, file) => "/media/" + encodeURIComponent(folder) + "/" + encodeURIComponent(file);
+const img = u => u ? "/thumb?u=" + encodeURIComponent(u) : "";
+const saveSel = () => { try { localStorage.setItem("sel", JSON.stringify([...selected])); } catch (e) {} };
+
+function compute() {
+  const q = norm($("#q").value);
+  const terms = q ? q.split(" ") : [];
+  const qid = $("#q").value.trim().toUpperCase();
+  view = catalog.filter(g => {
+    const dl = !!downloaded[g.id];
+    if (filter === "new" && dl) return false;
+    if (filter === "done" && !dl) return false;
+    if (filter === "sel" && !selected.has(g.id)) return false;
+    if (region === "!" + regions[0] ? g.reg.includes(regions[0]) : region && !g.reg.includes(region)) return false;
+    if (!terms.length) return true;
+    if (qid.length >= 6 && g.id.startsWith(qid)) return true;
+    return terms.every(t => g._n.includes(t));
+  });
+  const s = $("#sort").value;
+  if (s === "name" && q) {
+    // arama varken: tam eşleşme > baştan eşleşme > kelime başı > diğerleri
+    const rank = g => { const n = norm(g.name); return n === q ? 0 : n.startsWith(q) ? 1 : (" " + n).includes(" " + q) ? 2 : 3; };
+    view.sort((a, b) => rank(a) - rank(b) || a.name.length - b.name.length);
+  } else if (s === "new") view.sort((a, b) => b.date - a.date);
+  else if (s === "old") view.sort((a, b) => (a.date || 9e9) - (b.date || 9e9));
+}
+
+function badges(g) {
+  const d = downloaded[g.id];
+  if (!d) return "";
+  let h = `<span class="badge">✓ Downloaded</span>`;
+  h += d.music ? `<span class="badge">♪</span>` : `<span class="badge miss" title="No music">♪ none</span>`;
+  if (d.hero) h += `<span class="badge">hero</span>`;
+  return `<div class="badges">${h}</div>`;
+}
+
+function cardHTML(g) {
+  return `<div class="card${selected.has(g.id) ? " sel" : ""}" data-id="${g.id}">
+    <div class="ph">${esc(g.name.replace(/[™®]/g, "").slice(0, 40))}</div>
+    <img class="img" loading="lazy" decoding="async" src="${esc(img(g.icon))}" alt="">
+    <span class="check"></span>
+    <button class="info" data-info="${g.id}" title="Details">i</button>
+    <div class="body"><div class="name">${esc(g.name.replace(/[™®]/g, ""))}</div>
+    <div class="meta">${g.reg.includes(regions[0]) ? "" : `<span class="rtag" title="${esc(g.reg.map(r => labels[r] || r).join(", "))}">${g.reg[0]}</span>`}${esc(g.pub)}${g.pub && g.date ? " · " : ""}${year(g.date)}</div><div class="bslot">${badges(g)}</div></div></div>`;
+}
+
+// Kartlar bir kez oluşturulup tekrar kullanılır; böylece görseller her aramada yeniden istenmez.
+const cardCache = new Map();
+function cardEl(g) {
+  let el = cardCache.get(g.id);
+  if (!el) {
+    const t = document.createElement("template");
+    t.innerHTML = cardHTML(g).trim();
+    el = t.content.firstElementChild;
+    const im = el.querySelector("img.img");
+    im.addEventListener("error", () => im.classList.add("err"), {once: true});
+    im.addEventListener("load", () => im.classList.add("ok"), {once: true});
+    el._b = el.querySelector(".bslot").innerHTML;
+    cardCache.set(g.id, el);
+  }
+  el.classList.toggle("sel", selected.has(g.id));
+  const b = badges(g);
+  if (b !== el._b) { el.querySelector(".bslot").innerHTML = b; el._b = b; }
+  return el;
+}
+
+function render(reset = true) {
+  if (reset) { compute(); shown = PAGE; }
+  const items = view.slice(0, shown);
+  if (items.length) $("#grid").replaceChildren(...items.map(cardEl));
+  else $("#grid").innerHTML = `<div class="loading">No results.</div>`;
+  $("#more").hidden = view.length <= shown;
+  $("#count").textContent = `${view.length.toLocaleString("en")} ${view.length === 1 ? "game" : "games"}` + (view.length > shown ? ` · showing first ${shown}` : "");
+  updateBar();
+}
+
+function updateBar() {
+  const n = selected.size;
+  $("#sel-txt").textContent = n ? `${n} ${n === 1 ? "game" : "games"} selected` : "Nothing selected";
+  $("#btn-dl").disabled = !n || wasRunning;
+  $("#btn-dl").textContent = n ? `Download ${n} ${n === 1 ? "game" : "games"}` : "Download";
+  $("#st-dl").textContent = Object.keys(downloaded).length.toLocaleString("en");
+}
+
+$("#grid").addEventListener("click", e => {
+  const info = e.target.closest("[data-info]");
+  if (info) { openDetail(info.dataset.info); return; }
+  const c = e.target.closest(".card");
+  if (!c) return;
+  const id = c.dataset.id;
+  selected.has(id) ? selected.delete(id) : selected.add(id);
+  c.classList.toggle("sel");
+  saveSel(); updateBar();
+});
+
+let qt;
+$("#q").addEventListener("input", () => { clearTimeout(qt); qt = setTimeout(() => render(), 120); });
+$("#sort").addEventListener("change", () => render());
+$("#filter").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  filter = b.dataset.f;
+  document.querySelectorAll("#filter button").forEach(x => x.classList.toggle("on", x === b));
+  render();
+});
+$("#more").addEventListener("click", () => { shown += PAGE * 2; render(false); });
+$("#btn-selall").addEventListener("click", () => {
+  if (view.length > 2000 && !confirm(`This will select ${view.length} games. Are you sure?`)) return;
+  view.forEach(g => selected.add(g.id)); saveSel(); render(false);
+});
+$("#btn-clear").addEventListener("click", () => { selected.clear(); saveSel(); render(filter === "sel"); });
+
+$("#btn-dl").addEventListener("click", async () => {
+  try {
+    const r = await api("/api/download", {ids: [...selected]});
+    toast(`${r.queued} ${r.queued === 1 ? "game" : "games"} queued for download`);
+    selected.clear(); saveSel(); render(false); wasRunning = true; poll();
+  } catch (e) { toast("Error: " + e.message); }
+});
+$("#btn-cancel").addEventListener("click", () => api("/api/cancel", {}).then(() => toast("Will stop after the current games finish")));
+
+// ---- detay
+function openDetail(id) {
+  const g = catalog.find(x => x.id === id), d = downloaded[id];
+  const src = f => d ? mediaUrl(d.folder, f) : null;
+  let files = "";
+  if (d) {
+    const list = [["icon", d.icon], ["banner", d.banner], ["hero", d.hero], ["logo", d.logo], ["music", d.music]];
+    files = `<div class="files">${list.map(([k, v]) => `<span class="badge${v ? "" : " miss"}">${k}${v ? "" : " missing"}</span>`).join("")}${d.screenshots ? `<span class="badge">${d.screenshots} screenshot${d.screenshots === 1 ? "" : "s"}</span>` : ""}</div>`;
+  }
+  $("#detail").innerHTML = `
+    <img class="detail-banner" src="${esc(d && d.banner ? src("banner.jpg") : img(g.banner || g.icon))}" alt="">
+    <div class="detail-row"><img src="${esc(d && d.icon ? src("icon.jpg") : img(g.icon))}" alt="">
+      <div style="flex:1;min-width:0"><h3>${esc(g.name)}</h3>
+        <div class="kv">${esc(g.pub)} · ${year(g.date)} · <code>${g.id}</code></div>
+        <div class="kv">${esc((g.cat || []).join(", "))}</div>
+        <div class="kv">Regions: ${esc(g.reg.map(r => labels[r] || r).join(", "))}</div>
+        ${g.alt && g.alt.length ? `<div class="kv">Also known as: ${esc(g.alt.join(" · "))}</div>` : ""}
+        ${d ? `<div class="kv" style="margin-top:6px">Downloaded: ${esc(d.date || "")} · folder: <code>${esc(d.folder)}</code>${d.music_source ? "<br>Music: " + esc(d.music_source) : ""}</div>` : `<div class="kv" style="margin-top:6px">Not downloaded yet</div>`}
+        ${files}
+        ${d && d.music ? `<audio controls preload="none" src="${src("theme.mp3")}"></audio>` : ""}
+      </div></div>
+    <div class="dlg-f"><button class="btn ghost" data-close>Close</button>
+      <button class="btn primary" id="detail-toggle">${selected.has(id) ? "Deselect" : d ? "Select to re-download" : "Select"}</button></div>`;
+  $("#detail-toggle").onclick = () => { selected.has(id) ? selected.delete(id) : selected.add(id); saveSel(); render(false); $("#dlg-detail").close(); };
+  $("#dlg-detail").showModal();
+}
+
+// ---- ayarlar
+$("#btn-settings").addEventListener("click", async () => {
+  const s = await api("/api/settings");
+  $("#s-out").value = s.out; $("#s-music").value = s.music; $("#s-shots").value = String(s.screenshots);
+  $("#s-key").value = s.steamgriddb_key || ""; $("#s-workers").value = String(s.workers);
+  const all = s.all_regions || {};
+  const order = [...s.regions, ...Object.keys(all).filter(k => !s.regions.includes(k))];
+  $("#s-regions").innerHTML = order.map(k => `<label><input type="checkbox" value="${k}" ${s.regions.includes(k) ? "checked" : ""}>${esc(all[k] || k)} <span class="kv">${k.split(".")[0]}</span></label>`).join("");
+  $("#dlg-settings").showModal();
+});
+$("#btn-save").addEventListener("click", async () => {
+  const regs = [...document.querySelectorAll("#s-regions input:checked")].map(i => i.value);
+  if (!regs.length) { toast("Select at least one region"); return; }
+  const regionsChanged = regs.map(r => r.split(".")[0]).join() !== regions.join();
+  $("#btn-save").disabled = true; $("#btn-save").textContent = regionsChanged ? "Loading catalog…" : "Saving…";
+  try {
+    await api("/api/settings", {out: $("#s-out").value.trim(), music: $("#s-music").value, screenshots: +$("#s-shots").value,
+      steamgriddb_key: $("#s-key").value.trim(), workers: +$("#s-workers").value, regions: regs});
+    if (regionsChanged) await loadCatalog();
+    downloaded = await api("/api/downloaded"); render();
+    $("#dlg-settings").close(); toast("Settings saved");
+  } catch (e) { toast("Error: " + e.message); }
+  $("#btn-save").disabled = false; $("#btn-save").textContent = "Save";
+});
+$("#btn-rescan").addEventListener("click", async () => { downloaded = await api("/api/rescan", {}); render(false); toast("Folder rescanned"); });
+$("#btn-log").addEventListener("click", () => $("#dlg-log").showModal());
+document.addEventListener("click", e => { if (e.target.matches("[data-close]")) e.target.closest("dialog").close(); });
+document.querySelectorAll("dialog").forEach(d => d.addEventListener("click", e => { if (e.target === d) d.close(); }));
+
+// ---- durum takibi
+let pollT, lastSig = null;
+async function poll() {
+  clearTimeout(pollT);
+  let st;
+  try { st = await api("/api/status"); } catch (e) { pollT = setTimeout(poll, 3000); return; }
+  $("#prog").classList.toggle("on", st.running || st.total > 0 && st.done < st.total);
+  $("#fill").style.width = st.total ? (100 * st.done / st.total) + "%" : "0";
+  $("#prog-txt").textContent = st.running ? `${st.done}/${st.total}` + (st.current.length ? " · " + st.current.join(", ") : "") : (st.total ? `Done: ${st.done}/${st.total}` : "");
+  $("#btn-cancel").hidden = !st.running;
+  $("#log").textContent = st.log.length ? st.log.join("\n") : "Nothing yet.";
+  // iş durumu değiştiyse (çok kısa süren işler dahil) indirilen listesini yenile
+  const sig = `${st.total}/${st.done}/${st.running}/${st.log.length}`;
+  if (st.running || wasRunning || sig !== lastSig) { if (lastSig !== null || st.running) { downloaded = await api("/api/downloaded"); render(false); } }
+  lastSig = sig;
+  if (wasRunning && !st.running) toast("Download finished");
+  wasRunning = st.running; updateBar();
+  pollT = setTimeout(poll, st.running ? 1500 : 5000);
+}
+
+async function loadCatalog() {
+  const c = await api("/api/catalog");
+  regions = c.regions; labels = c.labels;
+  c.games.forEach(g => g._n = norm([g.name, g.pub, ...(g.alt || [])].join(" ")));
+  catalog = c.games; cardCache.clear();
+  $("#st-cat").textContent = catalog.length.toLocaleString("en");
+  const counts = {}; catalog.forEach(g => g.reg.forEach(r => counts[r] = (counts[r] || 0) + 1));
+  const only = catalog.filter(g => !g.reg.includes(regions[0])).length;
+  $("#region").innerHTML = `<option value="">All regions</option>` +
+    regions.map(r => `<option value="${r}">${esc(labels[r] || r)} (${counts[r] || 0})</option>`).join("") +
+    (regions.length > 1 ? `<option value="!${regions[0]}">Other regions only (${only})</option>` : "");
+  if (![...$("#region").options].some(o => o.value === region)) region = "";
+  $("#region").value = region;
+}
+$("#region").addEventListener("change", e => { region = e.target.value; render(); });
+
+(async () => {
+  const [, d] = await Promise.all([loadCatalog(), api("/api/downloaded")]);
+  downloaded = d;
+  render(); poll();
+})().catch(e => $("#grid").innerHTML = `<div class="loading">Could not reach the server: ${esc(e.message)}</div>`);
+</script>
+</body>
+</html>

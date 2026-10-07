@@ -1,0 +1,8 @@
+# One game name or Title ID (0100...) per line. Lines starting with # are ignored.
+# Names are fuzzy-matched; if unsure, look it up first:  python3 switch_media.py --search "zelda"
+The Legend of Zelda Tears of the Kingdom
+Super Mario Odyssey
+Mario Kart 8 Deluxe
+Animal Crossing New Horizons
+Hollow Knight
+0100535012974000
