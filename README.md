@@ -41,7 +41,7 @@ No database, no frameworks, no `pip install` — just Python's standard library,
 ## Quick start
 
 ```bash
-git clone https://github.com/<your-username>/switch-media.git
+git clone https://github.com/cryptooth/switch-media.git
 cd switch-media
 python3 server.py
 ```
