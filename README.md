@@ -4,6 +4,8 @@
 
 A small, self-hosted tool for bulk-downloading **Nintendo Switch game icons, banner / background images and theme music**. Search a catalog of ~25,000 games across several eShop regions in your browser, tick the ones you want, click *Download*, and every game gets its own neatly organised folder.
 
+![Switch Media — browsing the catalog in dark mode](docs/screenshot.png)
+
 No database, no frameworks, no `pip install` — just Python's standard library, one HTML page and a JSON file that remembers what you've already downloaded.
 
 ---
@@ -180,6 +182,7 @@ switch-media/
 ├── switch_media.py        catalog, matching, downloaders, CLI
 ├── index.html             the UI
 ├── Switch Media.command   double-click launcher for macOS
+├── docs/screenshot.png    screenshot used in this README
 ├── games.example.txt      sample list for the CLI
 ├── README.md / README.tr.md
 └── .gitignore             keeps media/, .cache/ and settings.json out of git

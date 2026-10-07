@@ -4,6 +4,8 @@
 
 **Nintendo Switch oyunlarının ikonlarını, banner / arka plan görsellerini ve tema müziklerini** toplu indirmek için küçük, kendi bilgisayarında çalışan bir araç. Birden fazla eShop bölgesinden derlenmiş ~25.000 oyunluk kataloğu tarayıcında ararsın, istediklerini işaretlersin, *Download*'a basarsın; her oyun için düzenli bir klasör oluşur.
 
+![Switch Media — koyu temada katalog görünümü](docs/screenshot.png)
+
 Veritabanı yok, framework yok, `pip install` yok. Python'un standart kütüphanesi, tek bir HTML sayfası ve neleri indirdiğini hatırlayan bir JSON dosyası.
 
 ---
@@ -184,6 +186,7 @@ switch-media/
 ├── switch_media.py        katalog, eşleştirme, indiriciler, komut satırı
 ├── index.html             arayüz
 ├── Switch Media.command   macOS için çift tıklamalı başlatıcı
+├── docs/screenshot.png    README'deki ekran görüntüsü
 ├── games.example.txt      komut satırı için örnek liste
 ├── README.md / README.tr.md
 └── .gitignore             media/, .cache/ ve settings.json'u git dışında tutar
